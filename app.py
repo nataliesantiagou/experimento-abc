@@ -25,6 +25,7 @@ cors = CORS(app)
 
 class VistaMonitor(Resource):
 
+    # se cambio a GET porque los heltChek son mas comunes en una peticion simple de tipo get
     def get(self, id_dispositivo):
         # consulto si existe el dispositivo
         dispositivo: Healthcheck = db.session.query(Healthcheck).filter(
@@ -46,7 +47,7 @@ class VistaMonitor(Resource):
                 "id": id_dispositivo}
 
 
-# hilo para revisar las tareas
+# hilo para revisar las desconexiones y generar alertas
 def revisar_desconexiones():
     print(time.strftime("%A, %d. %B %Y %I:%M:%S %p"))
     with app.app_context():
@@ -64,6 +65,7 @@ def revisar_desconexiones():
             db.session.commit()
 
 
+# creacion del hilo
 scheduler = BackgroundScheduler(daemon=True)
 scheduler.add_job(func=revisar_desconexiones, trigger="interval", seconds=1)
 # Para que no genere varios hilos en ambientes de desarrollo o en debug
