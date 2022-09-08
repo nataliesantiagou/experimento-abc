@@ -6,3 +6,7 @@ marshmallow==3.12.1
 marshmallow-sqlalchemy==0.25.0
 SQLAlchemy==1.4.15
 Werkzeug==2.0.1
+Flask-SQLAlchemy==2.5.1
+Flask-Cors==3.0.10
+APScheduler==3.9.1
+greenlet==1.1.3

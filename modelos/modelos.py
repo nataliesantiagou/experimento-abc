@@ -4,10 +4,13 @@ import datetime
 
 db = SQLAlchemy()
 
+
 class Healthcheck(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     id_dispositivo = db.Column(db.Integer)
     fecha_registro = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    desconectado = db.Column(db.Boolean, default=True)
+
 
 class Alerta(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -19,6 +22,7 @@ class HealthcheckSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Healthcheck
         load_instance = True
+
 
 class AlertaSchema(SQLAlchemyAutoSchema):
     class Meta:
