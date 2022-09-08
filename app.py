@@ -26,14 +26,17 @@ cors = CORS(app)
 class VistaMonitor(Resource):
 
     def get(self, id_dispositivo):
+        # consulto si existe el dispositivo
         dispositivo: Healthcheck = db.session.query(Healthcheck).filter(
             Healthcheck.id_dispositivo == id_dispositivo).first()
         if dispositivo:
+            # si ya esxiste solo registro la fecha y el estado conectado
             dispositivo.fecha_registro = now
             dispositivo.desconectado = False
             db.session.add(dispositivo)
             db.session.commit()
         else:
+            # si no existe lo registro en el sistema
             nuevo_healthcheck = Healthcheck(id_dispositivo=id_dispositivo, desconectado=False)
             db.session.add(nuevo_healthcheck)
             db.session.commit()
