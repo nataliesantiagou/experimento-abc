@@ -1,13 +1,14 @@
 from flask import Flask
 import os
 from flask_restful import Api, Resource
-from sqlalchemy.sql.functions import now
 import datetime
-from .modelos import db, Healthcheck, Alerta
+from .modelos import db, Healthcheck, HealthcheckSchema, Alerta
 from flask_cors import CORS
 import time
 import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
+
+healthcheck_schema = HealthcheckSchema()
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///monitor.db'
@@ -32,7 +33,7 @@ class VistaMonitor(Resource):
             Healthcheck.id_dispositivo == id_dispositivo).first()
         if dispositivo:
             # si ya esxiste solo registro la fecha y el estado conectado
-            dispositivo.fecha_registro = now
+            dispositivo.fecha_registro = datetime.datetime.utcnow()
             dispositivo.desconectado = False
             db.session.add(dispositivo)
             db.session.commit()
@@ -53,8 +54,11 @@ def revisar_desconexiones():
     with app.app_context():
         # TODO: sumar fechas para poder hacer el filtro en la consulta
         # Consulta para filtrar dispositivosn con un tiempo mayor al pemritodo de desconexion
-        dispositivos = db.session.query(Healthcheck).filter(Healthcheck.desconectado).filter(
-            Healthcheck.fecha_registro >= datetime.datetime.timestamp()).all()
+        current_time = datetime.datetime.utcnow()
+        one_min_ago = current_time - datetime.timedelta(minutes=1)
+
+        dispositivos = db.session.query(Healthcheck).filter(Healthcheck.desconectado.is_(False)).filter(
+            Healthcheck.fecha_registro < one_min_ago).all()
         for dispositivo in dispositivos:
             # se cambia el estado para ponerlo desconectado
             dispositivo.desconectado = True
