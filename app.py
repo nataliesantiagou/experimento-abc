@@ -7,11 +7,12 @@ from flask_cors import CORS
 import time
 import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
+from flask import send_from_directory
 
 healthcheck_schema = HealthcheckSchema()
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///monitor.db'
+app = Flask(__name__, static_folder='static')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///static/monitor.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['PROPAGATE_EXCEPTIONS'] = True
 
@@ -48,11 +49,17 @@ class VistaMonitor(Resource):
                 "id": id_dispositivo}
 
 
+class VistaDatos(Resource):
+
+    # se cambio a GET porque los heltChek son mas comunes en una peticion simple de tipo get
+    def get(self):
+        return send_from_directory(directory='static', filename='monitor.db')
+
+
 # hilo para revisar las desconexiones y generar alertas
 def revisar_desconexiones():
     print(time.strftime("%A, %d. %B %Y %I:%M:%S %p"))
     with app.app_context():
-        # TODO: sumar fechas para poder hacer el filtro en la consulta
         # Consulta para filtrar dispositivosn con un tiempo mayor al pemritodo de desconexion
         current_time = datetime.datetime.utcnow()
         one_min_ago = current_time - datetime.timedelta(seconds=15)
@@ -81,3 +88,4 @@ atexit.register(lambda: scheduler.shutdown())
 
 api = Api(app)
 api.add_resource(VistaMonitor, '/monitor/<string:id_dispositivo>')
+api.add_resource(VistaDatos, '/datos')
