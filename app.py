@@ -2,7 +2,7 @@ from flask import Flask, current_app
 import os
 from flask_restful import Api, Resource
 import datetime
-from .modelos import db, Healthcheck, HealthcheckSchema, Alerta
+from modelos import db, Healthcheck, HealthcheckSchema, Alerta
 from flask_cors import CORS
 import time
 import atexit
