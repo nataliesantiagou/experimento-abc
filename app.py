@@ -55,7 +55,7 @@ def revisar_desconexiones():
         # TODO: sumar fechas para poder hacer el filtro en la consulta
         # Consulta para filtrar dispositivosn con un tiempo mayor al pemritodo de desconexion
         current_time = datetime.datetime.utcnow()
-        one_min_ago = current_time - datetime.timedelta(minutes=1)
+        one_min_ago = current_time - datetime.timedelta(seconds=15)
 
         dispositivos = db.session.query(Healthcheck).filter(Healthcheck.desconectado.is_(False)).filter(
             Healthcheck.fecha_registro < one_min_ago).all()
