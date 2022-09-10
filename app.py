@@ -1,8 +1,8 @@
-from flask import Flask
+from flask import Flask, current_app
 import os
 from flask_restful import Api, Resource
 import datetime
-from modelos import db, Healthcheck, HealthcheckSchema, Alerta
+from .modelos import db, Healthcheck, HealthcheckSchema, Alerta
 from flask_cors import CORS
 import time
 import atexit
@@ -49,11 +49,12 @@ class VistaMonitor(Resource):
                 "id": id_dispositivo}
 
 
-# class VistaDatos(Resource):
-#
-#     # se cambio a GET porque los heltChek son mas comunes en una peticion simple de tipo get
-#     def get(self):
-#         return send_from_directory(directory='static', filename='monitor.db')
+class VistaDatos(Resource):
+
+    # se cambio a GET porque los heltChek son mas comunes en una peticion simple de tipo get
+    def get(self):
+        uploads = os.path.join(current_app.root_path, '')
+        return send_from_directory(directory=uploads, filename='monitor.db')
 
 
 # hilo para revisar las desconexiones y generar alertas
@@ -88,4 +89,4 @@ atexit.register(lambda: scheduler.shutdown())
 
 api = Api(app)
 api.add_resource(VistaMonitor, '/monitor/<string:id_dispositivo>')
-# api.add_resource(VistaDatos, '/datos')
+api.add_resource(VistaDatos, '/datos')
